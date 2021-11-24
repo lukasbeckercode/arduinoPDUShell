@@ -35,7 +35,7 @@ def serial_ports():
 
 
 def print_help(ser):
-    with open("commands.csv", "r") as file:
+    with open("res/commands.csv", "r") as file:
         reader = csv.reader(file)
         for row in reader:
             print(row[0] + ": " + row[1])
@@ -65,7 +65,7 @@ def startup():
 
 
 def parse_sw(sw):
-    with open("SW.csv", "r") as file:
+    with open("res/SW.csv", "r") as file:
         reader = csv.reader(file)
         for row in reader:
             if row[0] == sw:
