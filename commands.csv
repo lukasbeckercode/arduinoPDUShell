@@ -1,0 +1,13 @@
+0100,Hello World
+0101,Echo
+0200,Store data
+0201,get data
+0310,set to input
+0311,set to output
+0300,Set to LOW
+0301,Set to HIGH
+0302,Read from digital pin
+0303,analog Output
+0304,analog Read
+0390,reset pinMode
+0399,reset pinModes
