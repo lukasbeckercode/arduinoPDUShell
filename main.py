@@ -3,6 +3,7 @@ import serial
 import csv
 import sys
 import glob
+from termcolor import colored
 
 
 def serial_ports():
@@ -52,13 +53,13 @@ def startup():
     ser = serial.Serial()
 
     ser.baudrate = 9600
-    ser.timeout = 1
+    ser.timeout = 0.7
     port_num = input("Type port number to connect to: \n")
 
     ser.port = ports[int(port_num)]
     ser.open()
     if not ser.isOpen():
-        print("Error: Port not available or misspelled")
+        print(colored("Error: Port not available or misspelled", "red"))
         startup()
     else:
         return ser
@@ -81,14 +82,20 @@ def parse_resp(resp):
     sw = resp[-5:-1]
     sw = parse_sw(sw)
     data = resp[2:-5]
+    data = str(data)
+    data = data.replace("\\x00", '0')
+    data = data.replace('\\x01', '1')
     return sw + "::" + data
 
 
 def send_cmd(cmd, ser):
-    print(">>" + cmd)
+    if cmd[0] == ':':
+        print(colored("unknown command","red"))
+        dialog(ser)
+    print(colored(">>" + cmd, "blue"))
     ser.write(bytes(cmd, encoding='utf8'))
     resp = ser.read(64)
-    print("<<" + parse_resp(resp))
+    print(colored("<<" + parse_resp(resp), "blue"))
     dialog(ser)
 
 
