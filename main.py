@@ -73,6 +73,14 @@ def parse_sw(sw):
                 return row[1] + "(" + sw + ")"
 
 
+def get_SW(resp):
+    if len(resp) == 4:
+        resp = str(resp)
+        return resp[2:-1]
+    resp = str(resp)
+    return resp[-5:-1]
+
+
 def parse_resp(resp):
     if len(resp) == 4:
         resp = str(resp)
@@ -88,27 +96,51 @@ def parse_resp(resp):
     return sw + "::" + data
 
 
+SW = None
+
+
 def send_cmd(cmd, ser):
     if cmd[0] == ':':
-        print(colored("unknown command","red"))
+        print(colored("unknown command", "red"))
         dialog(ser)
     print(colored(">>" + cmd, "blue"))
     ser.write(bytes(cmd, encoding='utf8'))
     resp = ser.read(64)
     print(colored("<<" + parse_resp(resp), "blue"))
-    dialog(ser)
+    global SW
+    SW = get_SW(resp)
+    if SW == "9099":
+        while not SW == "9000":
+            resp = ser.read(64)
+            SW = get_SW(resp)
+
+        print(colored("<<" + parse_resp(resp), "blue"))
+
+
+def run_script(path, ser):
+    print("path of script: " + path)
+    with open(path, "r") as script:
+        lines = script.readlines()
+        for line in lines:
+            line = line.strip()
+            send_cmd(line, ser)
 
 
 def dialog(ser):
     user_in = input(">>")
     if user_in == ":help":
         print_help(ser)
-    elif user_in == ":exit":
+    elif user_in == ":exit" or user_in == ":e":
         ser.write(b'0399')
         ser.close()
         exit(0)
+    elif user_in.startswith(":script"):
+        arg = user_in[8:-1]
+        run_script(arg, ser)
+        dialog(ser)
     else:
         send_cmd(user_in, ser)
+        dialog(ser)
 
 
 def main():
